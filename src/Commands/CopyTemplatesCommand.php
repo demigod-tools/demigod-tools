@@ -13,7 +13,7 @@ use Pantheon\TerminusHello\Model\Greeter;
 /**
  * Say hello to the user
  */
-class CopyTemplates extends TerminusCommand
+class CopyTemplatesCommand extends TerminusCommand
 {
     /**
      * Copy Templates
