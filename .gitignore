@@ -1,2 +1,4 @@
 vendor
 tools
+.idea
+.DS_Store
