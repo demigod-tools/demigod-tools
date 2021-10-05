@@ -1,6 +1,6 @@
 {
-    "name": "terminus-plugin-project/demigod-tools",
-    "description": "An example Terminus command",
+    "name": "demigod-tools/demigod-tools",
+    "description": "Demigod Tools for hosting pantheon sites locally",
     "type": "terminus-plugin",
     "license": "MIT",
     "autoload": {
