@@ -18,13 +18,15 @@ class CopyTemplates extends TerminusCommand
     /**
      * Copy Templates
      *
-     * @command demigod-tools:copy-templates
-     * @aliases dtct
+     * @command demigod:copy-templates
+     * @aliases dgct
+     * @param string $site_name
      *
      */
     public function copyTemplates(string $site_name)
     {
       print_r(get_defined_vars());
+      echo __FILE__;
     }
 
 }
