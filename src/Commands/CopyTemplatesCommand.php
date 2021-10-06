@@ -15,18 +15,49 @@ use Pantheon\TerminusHello\Model\Greeter;
  */
 class CopyTemplatesCommand extends TerminusCommand
 {
-    /**
-     * Copy Templates
-     *
-     * @command demigod:copy-templates
-     * @aliases dgct
-     * @param string $site_name
-     *
-     */
+  /**
+   * Copy Templates
+   *
+   * @command demigod:copy-templates
+   * @aliases dgct
+   * @param string $site_name
+   *
+   */
     public function copyTemplates(string $site_name)
     {
-      print_r(get_defined_vars());
-      echo __FILE__;
-    }
+        $base_dir = dirname(dirname(__DIR__));
+        $clone_dir = $_SERVER['HOME'] . '/pantheon-local-copies/' . $site_name;
+        if (!is_dir($clone_dir)) {
+            throw new \Exception("TODO: clone this automatically if it doesn't exist.");
+        }
+        $iterator = new \DirectoryIterator($base_dir . '/templates');
+        for ($iterator->rewind(); $iterator->valid(); $iterator->next()) {
+            if (is_file($iterator->current()->getRealPath())) {
+                switch ($iterator->current()->getFilename()) {
+                    case 'settings.local.php':
+                        copy(
+                            $iterator->current()->getRealPath(),
+                            $clone_dir . '/web/sites/default/settings.local.php'
+                        );
+                        break;
 
+                    case '.envrc':
+                        $contents = file_get_contents($iterator->current()->getRealPath());
+                        $contents = str_replace('**PROJECT_NAME**', $site_name, $contents);
+                        $contents = str_replace('**PROJECT_PATH**', $clone_dir, $contents);
+                        file_put_contents($clone_dir . '/' . $iterator->current()->getFilename(), $contents);
+                        break;
+
+                    default:
+                        copy(
+                            $iterator->current()->getRealPath(),
+                            $clone_dir . '/' . $iterator->current()->getFilename()
+                        );
+                }
+            }
+        }
+        chdir($clone_dir);
+        exec('echo ".envrc" >> .gitignore ');
+        exec('direnv allow');
+    }
 }
