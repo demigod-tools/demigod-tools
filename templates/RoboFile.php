@@ -147,7 +147,7 @@ class RoboFile extends \Robo\Tasks
    */
   public function copyBackTemplates()
   {
-    $templateDir = getenv('HOME') . '/Projects/terminus/templates/localdev';
+    $templateDir = getenv('HOME') . '/Projects/demigod-tools/templates';
     copy(__DIR__ . '/docker-compose.yml',  $templateDir . "/docker-compose.yml");
     copy(__DIR__ . '/RoboFile.php',  $templateDir . "/RoboFile.php" );
     copy(__DIR__ . '/web/sites/default/settings.local.php',  $templateDir . "/settings.local.php" );

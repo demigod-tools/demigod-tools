@@ -1,47 +1,45 @@
-# Terminus Plugin Example
+
+# Demigod Tools
 
 [![CircleCI](https://circleci.com/gh/pantheon-systems/terminus-plugin-example.svg?style=shield)](https://circleci.com/gh/pantheon-systems/terminus-plugin-example)
-[![Terminus v2.x - v3.x Compatible](https://img.shields.io/badge/terminus-2.x%20--%203.x-green.svg)](https://github.com/pantheon-systems/terminus-plugin-example/tree/2.x)
+[![Terminus v3.x Compatible](https://img.shields.io/badge/terminus-03.x-green.svg)](https://github.com/pantheon-systems/terminus-plugin-example/tree/3.x)
 
-A simple plugin for Terminus-CLI to demonstrate how to add new commands.
+A simple plugin for Terminus-CLI version 3.0 or newer that adds a docker compose and environment variables.
 
 Adds commands 'hello' and 'auth:hello' to Terminus. Learn more about Terminus Plugins in the
 [Terminus Plugins documentation](https://pantheon.io/docs/terminus/plugins)
+
+## Requirements
+
+* Terminus version 3.0
+
+  { `brew install pantheon-systems/external/terminus` }
+
+* (direnv)[https://direnv.net]
+
+  { `brew install direnv` }
+
+* Docker version 4.0+ ( docker-compose is now a part of default install )
+
+  { `brew install --cask docker` }
+
 
 ## Configuration
 
 These commands require no configuration
 
 ## Usage
-* `terminus hello`
-* `terminus auth:hello`
+`terminus local:clone {site_name}`
+`terminus demigod:copy-templates {site_name}`
 
 ## Installation
 
 To install this plugin using Terminus 3:
 ```
-terminus self:plugin:install terminus-plugin-example
+terminus self:plugin:install demigod-tools/demigod-tools
 ```
 
-On older versions of Terminus:
-```
-mkdir -p ~/.terminus/plugins
-curl https://github.com/pantheon-systems/terminus-plugin-example/archive/2.x.tar.gz -L | tar -C ~/.terminus/plugins -xvz
-```
+## Update
 
-## Testing
-This example project includes four testing targets:
+`terminus self:plugin:update`
 
-* `composer lint`: Syntax-check all php source files.
-* `composer cs`: Code-style check.
-* `composer unit`: Run unit tests with phpunit
-* `composer functional`: Run functional test with bats
-
-To run all tests together, use `composer test`.
-
-Note that prior to running the tests, you should first run:
-* `composer install`
-* `composer install-tools`
-
-## Help
-Run `terminus help auth:hello` for help.

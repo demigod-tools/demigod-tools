@@ -53,8 +53,8 @@ services:
     image: ${MYSQL_CONTAINER}
     environment:
       - PROJECT_NAME=${PROJECT_NAME}
-    volumes:
-     - './db:/var/lib/mysql'
+    #volumes:
+    # - './db:/var/lib/mysql'
     expose:
       - "3306"
     ports:
