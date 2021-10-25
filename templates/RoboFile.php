@@ -176,7 +176,7 @@ class RoboFile extends \Robo\Tasks
       ->run();
     $this->say('Unzipping and importing data');
     $mysqlCommand = vsprintf(
-      'pv \"./db/%s\" | gunzip | mysql -u root --password=%s --host 127.0.0.1 --port 33067 --protocol tcp %s ',
+      'pv "./db/%s" | gunzip | mysql -u root --password=%s --host 127.0.0.1 --port 33067 --protocol tcp %s ',
       [
         $backup_file_name,
         getenv('MYSQL_ROOT_PASSWORD'),
