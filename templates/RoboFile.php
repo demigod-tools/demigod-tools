@@ -163,17 +163,18 @@ class RoboFile extends \Robo\Tasks
   function sitePullDatabase(string $env = "live")
   {
     $project = getenv('PROJECT_NAME');
-    $siteEnv = $project . '.' . $env;
     $backup_file_name = "{$project}.sql.gz";
-
-    $this->say('Creating backup on Pantheon.');
-    $this->taskExec('terminus')
-      ->args('backup:create', $siteEnv, '--element=db')
-      ->run();
-    $this->say('Downloading backup file.');
-    $this->taskExec('terminus')
-      ->args('backup:get', $siteEnv, "--to=db/{$backup_file_name}", '--element=db')
-      ->run();
+    if (!file_exists(__DIR__ . "/db/{$backup_file_name}")) {
+      $siteEnv = $project . '.' . $env;
+      $this->say('Creating backup on Pantheon.');
+      $this->taskExec('terminus')
+        ->args('backup:create', $siteEnv, '--element=db')
+        ->run();
+      $this->say('Downloading backup file.');
+      $this->taskExec('terminus')
+        ->args('backup:get', $siteEnv, "--to=db/{$backup_file_name}", '--element=db')
+        ->run();
+    }
     $this->say('Unzipping and importing data');
     $mysqlCommand = vsprintf(
       'pv "./db/%s" | gunzip | mysql -u root --password=%s --host 127.0.0.1 --port 33067 --protocol tcp %s ',
@@ -196,22 +197,29 @@ class RoboFile extends \Robo\Tasks
   function sitePullFiles(string $env = 'live')
   {
     $project = getenv('PROJECT_NAME');
-    $siteEnv = $project . '.' . $env;
-    $download = 'files_' . $siteEnv;
-    $this->say('Creating files backup on Pantheon.');
-    $this->taskExec('terminus')
-      ->args('backup:create', $siteEnv, '--element=files')
-      ->run();
-    $this->say('Downloading files.');
-    $this->taskExec('terminus')
-      ->args('backup:get', $siteEnv, '--to=db/files.tar.gz', '--element=files')
-      ->run();
+    $backup_filename = __DIR__ . '/db/files.tar.gz';
+    if (!file_exists($backup_filename)) {
+      $siteEnv = $project . '.' . $env;
+      $download = 'files_' . $siteEnv;
+      $this->say('Creating files backup on Pantheon.');
+      $this->taskExec('terminus')
+        ->args('backup:create', $siteEnv, '--element=files')
+        ->run();
+      $this->say('Downloading files.');
+      $this->taskExec('terminus')
+        ->args('backup:get', $siteEnv, '--to=db/files.tar.gz', '--element=files')
+        ->run();
+    }
     $this->say('Unzipping archive');
     $this->taskExec('tar')
-      ->args('-xvf', './files.tar.gz', __DIR__ . "/db")
+      ->args(
+        '-xv',
+        '-C./db/',
+        '-f'. $backup_filename
+      )
       ->run();
-    $this->say('Copying Files');
-    $this->_symlink(__DIR__ . '/db/files', __DIR__ . 'web/sites/default/files');
+    $this->_rename(__DIR__ . '/db/files_' . $env, __DIR__ . '/db/files');
+    $this->_copyDir( __DIR__ . '/db/files', __DIR__ . '/web/sites/default/files' );
   }
 
 
@@ -236,6 +244,24 @@ class RoboFile extends \Robo\Tasks
 	    $this->_exec("rm -Rf vendor web/modules/composer web/themes/composer web/modules/contrib web/themes/contrib web/core composer.lock");
       return exec("composer install");
     }
+  }
+
+  public function siteRsyncFiles(string $env = 'live') {
+    //## YOUR SSH KEY MUST BE REGISTERED WITH PANTHEON AND SHARED WITH THE DOCKER CONTAINER FOR THIS TO WORK
+    //rsync -rvlz --copy-unsafe-links --size-only --checksum --ipv4 --progress -e 'ssh -p 2222' live.3f2a3ea1-fe0b-478b-9c9f-55b30cc10325@appserver.live.3f2a3ea1-fe0b-478b-9c9f-55b30cc10325.drush.in:files/ ${FILES_FOLDER}
+    $project = getenv('PROJECT_NAME');
+    $local_files_folder = realpath(__DIR__ . '/web/sites/default/files' );
+    $sftp_host = exec("/usr/local/bin/terminus connection:info $project.$env --field=sftp_host");
+    $command = vsprintf(
+      "rsync -rvlz --copy-unsafe-links --size-only --checksum --ipv4 --progress -e '%s' %s:files/ %s",
+      [
+        'ssh -p 2222',
+        $sftp_host,
+        $local_files_folder
+      ]
+    );
+    return $this->_exec($command);
+
   }
 
 }

@@ -21,13 +21,13 @@ if (!defined('PANTHEON_ENVIRONMENT')) {
   if (PHP_SAPI == 'cli') {
     ini_set('max_execution_time', 999);
   } else {
-    $settings['container_yamls'][] = 'modules/composer/redis/example.services.yml';
-    $settings['redis.connection']['interface'] = 'PhpRedis';
-    $settings['redis.connection']['host'] = getenv('CACHE_HOST');
-    $settings['redis.connection']['port'] = getenv('CACHE_PORT');
-    $settings['cache']['bins']['bootstrap'] = 'cache.backend.redis';
-    $settings['cache']['bins']['config'] = 'cache.backend.redis';
-    $settings['cache']['bins']['render'] = 'cache.backend.redis';
+    #$settings['container_yamls'][] = 'modules/composer/redis/example.services.yml';
+    #$settings['redis.connection']['interface'] = 'PhpRedis';
+    #$settings['redis.connection']['host'] = getenv('CACHE_HOST');
+    #$settings['redis.connection']['port'] = getenv('CACHE_PORT');
+    #$settings['cache']['bins']['bootstrap'] = 'cache.backend.redis';
+    #$settings['cache']['bins']['config'] = 'cache.backend.redis';
+    #$settings['cache']['bins']['render'] = 'cache.backend.redis';
 
     /**
      * $settings['cache']['bins']['bootstrap']           = 'cache.backend.chainedfast';
