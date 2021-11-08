@@ -23,20 +23,32 @@ Adds commands 'hello' and 'auth:hello' to Terminus. Learn more about Terminus Pl
 
   { `brew install --cask docker` }
 
+* [Robo](https://github.com/consolidation/robo)
+
+  { See the Readme on the robo repository }
+
+## Installation
+
+To install this plugin using Terminus 3:
+
+```
+terminus self:plugin:install demigod-tools/demigod-tools
+```
 
 ## Configuration
 
 These commands require no configuration
 
 ## Usage
-`terminus local:clone {site_name}`
-`terminus demigod:copy-templates {site_name}`
 
-## Installation
-
-To install this plugin using Terminus 3:
 ```
-terminus self:plugin:install demigod-tools/demigod-tools
+
+terminus local:clone {site_name}
+
+terminus demigod:copy-templates {site_name}
+
+robo docker:up
+
 ```
 
 ## Update
