@@ -13,19 +13,20 @@ Adds commands 'hello' and 'auth:hello' to Terminus. Learn more about Terminus Pl
 
 * Terminus version 3.0
 
-  { `brew install pantheon-systems/external/terminus` }
+  `brew install pantheon-systems/external/terminus`
 
 * (direnv)[https://direnv.net]
 
-  { `brew install direnv` }
+  `brew install direnv`
 
 * Docker version 4.0+ ( docker-compose is now a part of default install )
 
-  { `brew install --cask docker` }
+  `brew install --cask docker`
 
 * [Robo](https://github.com/consolidation/robo)
 
-  { See the Readme on the robo repository }
+  See the Readme on the robo repository
+
 
 ## Installation
 
