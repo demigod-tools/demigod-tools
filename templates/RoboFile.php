@@ -57,7 +57,7 @@ class RoboFile extends \Robo\Tasks
     $this->waitForContainer("{$project}-mysql");
     $this->taskDockerExec($container)
       ->interactive(true)
-      ->exec("drush site:install --account-name=demo --site-name={$project} --locale=en --yes  {$profile}")
+      ->exec("drush site:install --account-name=admin --site-name={$project} --locale=en --yes  {$profile}")
       ->run();
     $this->siteEnableModules([
       'redis',
