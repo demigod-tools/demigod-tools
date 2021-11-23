@@ -19,6 +19,8 @@ Adds commands 'hello' and 'auth:hello' to Terminus. Learn more about Terminus Pl
 
   `brew install direnv pv`
 
+   Also, be sure to integrate DIRENV into your shell using the information here: https://direnv.net/docs/hook.html
+
 * Docker version 4.0+ ( docker-compose is now a part of default install )
 
   `brew install --cask docker`
