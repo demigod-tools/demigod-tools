@@ -1,5 +1,6 @@
 # Docker Local Hosting for Development
 
+## Given a pantheon site based on the Drupal 9 upstream:
 
 1. `brew install direnv pv `
 

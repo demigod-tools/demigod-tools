@@ -15,9 +15,9 @@ Adds commands 'hello' and 'auth:hello' to Terminus. Learn more about Terminus Pl
 
   `brew install pantheon-systems/external/terminus`
 
-* (direnv)[https://direnv.net]
+* [direnv](https://direnv.net) and [Pipe Viewer/pv](http://www.ivarch.com/programs/pv.shtml)
 
-  `brew install direnv`
+  `brew install direnv pv`
 
 * Docker version 4.0+ ( docker-compose is now a part of default install )
 
@@ -43,11 +43,13 @@ These commands require no configuration
 ## Usage
 
 ```
-
+# clone the site locally with terminus 3
 terminus local:clone {site_name}
 
+# Copy the demigod docker templates into place
 terminus demigod:copy-templates {site_name}
 
+# use robo to launch the containers
 robo docker:up
 
 ```
@@ -55,4 +57,3 @@ robo docker:up
 ## Update
 
 `terminus self:plugin:update`
-
