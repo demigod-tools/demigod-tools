@@ -10,9 +10,8 @@ services:
     depends_on:
       - php
       - mysql
-    links:
-      - php
-      - mysql
+    networks:
+      - demigod
     volumes:
       - ".:/var/www"
     ports:
@@ -28,8 +27,6 @@ services:
     image: ${PHP_CONTAINER}
     expose:
       - "9000"
-    ports:
-      - "9000:9000"
     volumes:
       - ".:/var/www"
       - "$HOME/.terminus/cache:/root/.terminus/cache:cached"
@@ -37,10 +34,8 @@ services:
         source: $HOME/.ssh
         target: /root/.ssh
         read_only: true
-    links:
-      - redis
-      - mysql
-      - solr8
+    networks:
+      - demigod
     env_file:
       - .envrc
     environment:
@@ -52,9 +47,9 @@ services:
     container_name: ${PROJECT_NAME}-mysql
     image: ${MYSQL_CONTAINER}
     environment:
-      - PROJECT_NAME=${PROJECT_NAME}
-    #volumes:
-    # - './db:/var/lib/mysql'
+      PROJECT_NAME: ${PROJECT_NAME}
+    networks:
+      - demigod
     expose:
       - "3306"
     ports:
@@ -78,22 +73,63 @@ services:
     # Generic redis instance
     container_name: ${PROJECT_NAME}-redis
     image: redis
+    networks:
+      - demigod
     expose:
       - "6379"
 
-  solr8:
-    container_name: ${PROJECT_NAME}-solr8
+  solr:
+    container_name: ${PROJECT_NAME}-solr
     image: ${SOLR_CONTAINER}
-    env_file:
-      - .envrc
+    depends_on:
+      - zk
+    networks:
+      - demigod
     environment:
-      - PROJECT_NAME=${PROJECT_NAME}
+      ZK_HOST: "zk:2181"
+    entrypoint:
+      - "bash"
+      - "-c"
+      - "/opt/docker-solr/scripts/solr-create -c ${PROJECT_NAME} -d /opt/search_api_solr/jump-start/solr8/cloud-config-set"
     expose:
       - "8983"
     ports:
       - "8983:8983"
 
+  zk:
+    container_name: ${PROJECT_NAME}-zk
+    image: zookeeper
+    networks:
+      - demigod
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: "yes"
+      ZOO_CFG_EXTRA: "metricsProvider.className=org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider metricsProvider.httpPort=7000 metricsProvider.exportJvmInfo=true"
+      ZOO_4LW_COMMANDS_WHITELIST: "mntr, conf, ruok"
+      SERVER_JVMFLAGS: "-Xms2048m -Xmx2048m"
+      ZOO_LOG4J_PROP: "INFO,ROLLINGFILE"
+    expose:
+      - "2181"
+    ports:
+      - "2181:2181"
+
+  zk-ui:
+    container_name: ${PROJECT_NAME}-zk-ui
+    image: elkozmon/zoonavigator
+    depends_on:
+      - zk
+    networks:
+      - demigod
+    expose:
+      - "9000"
+    ports:
+      - "9000:9000"
+    environment:
+      HTTP_PORT: "9000"
+      AUTO_CONNECT_CONNECTION_STRING: "zk:2181"
 
 volumes:
   web: { }
   initmysql: { }
+  data:
+networks:
+  demigod:
