@@ -14,6 +14,7 @@ services:
       - demigod
     volumes:
       - ".:/var/www"
+      - "./logs:/var/log/supervisor"
     ports:
       - "8080:80"
       - "9222:9222"
@@ -65,6 +66,7 @@ services:
           "--password=${MYSQL_PASSWORD}",
           "--host=localhost"
       ]
+      start_period: 60s
       retries: 10
       interval: 15s
       timeout: 5s
@@ -81,18 +83,35 @@ services:
   solr:
     container_name: ${PROJECT_NAME}-solr
     image: ${SOLR_CONTAINER}
+    restart: always
     depends_on:
       - zk
     networks:
       - demigod
+    volumes:
+      - "./logs:/var/solr/logs"
     environment:
       ZK_HOST: "zk:2181"
+      VERBOSE: true
+      SOLR_JAVA_MEM: "-Xms2G -Xmx2G"
+      SOLR_HOST: "solr"
+      SOLR_PORT: "8983"
+      SOLR_PATH: "/solr"
+      PROJECT_NAME: ${PROJECT_NAME}
     entrypoint:
-      - "bash"
+      - bash
       - "-c"
-      - "/opt/docker-solr/scripts/solr-create -c ${PROJECT_NAME} -d /opt/search_api_solr/jump-start/solr8/cloud-config-set"
+      - "exec solr -c -f -z zk:2181; exec solr create_collection -c ${PROJECT_NAME} -d /opt/search_api_solr/jump-start/solr8/cloud-config-set;"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -sf http://localhost:8983/solr/${PROJECT_NAME}/admin/ping?wt=json | jq -r .status | grep -iq ok || exit 1" ]
+      start_period: 60s
+      interval: 30s
+      timeout: 5s
+      retries: 3
     expose:
       - "8983"
+    extra_hosts:
+      - "solr:127.0.0.1"
     ports:
       - "8983:8983"
 
@@ -101,16 +120,22 @@ services:
     image: zookeeper
     networks:
       - demigod
+    volumes:
+      - "./logs:/var/log/zk"
     environment:
       ALLOW_ANONYMOUS_LOGIN: "yes"
       ZOO_CFG_EXTRA: "metricsProvider.className=org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider metricsProvider.httpPort=7000 metricsProvider.exportJvmInfo=true"
-      ZOO_4LW_COMMANDS_WHITELIST: "mntr, conf, ruok"
+      ZOO_4LW_COMMANDS_WHITELIST: mntr, conf, ruok
       SERVER_JVMFLAGS: "-Xms2048m -Xmx2048m"
       ZOO_LOG4J_PROP: "INFO,ROLLINGFILE"
+      ZOO_MY_ID: 1
+      ZOO_PORT: 2181
+      ZOO_LOG_DIR: "/var/log/zk"
     expose:
       - "2181"
     ports:
       - "2181:2181"
+      - "7000:7000"
 
   zk-ui:
     container_name: ${PROJECT_NAME}-zk-ui

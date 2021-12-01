@@ -28,7 +28,19 @@ class CopyTemplatesCommand extends TerminusCommand
         $base_dir = dirname(dirname(__DIR__));
         $clone_dir = $_SERVER['HOME'] . '/pantheon-local-copies/' . $site_name;
         if (!is_dir($clone_dir)) {
-            throw new \Exception("TODO: clone this automatically if it doesn't exist.");
+          throw new \Exception("TODO: clone this automatically if it doesn't exist.");
+        }
+        // search for "pv, mysql-client" install if necessary
+        foreach ([
+                   $clone_dir . '/web/sites/default',
+                   $clone_dir . '/db',
+                   $clone_dir . '/logs',
+
+                 ] as $directory) {
+          if (!is_dir($directory)) {
+            mkdir($directory, 0777, true);
+          }
+          touch($directory . "/.gitkeep");
         }
         $iterator = new \DirectoryIterator($base_dir . '/templates');
         for ($iterator->rewind(); $iterator->valid(); $iterator->next()) {
@@ -57,7 +69,7 @@ class CopyTemplatesCommand extends TerminusCommand
             }
         }
         chdir($clone_dir);
-        exec('echo ".envrc" >> .gitignore ');
+        exec('echo ".idea\n.envrc\nlogs/*\ndb/*\n.DS_Store" >> .gitignore ');
         exec('direnv allow');
     }
 }
