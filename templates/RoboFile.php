@@ -60,10 +60,11 @@ class RoboFile extends \Robo\Tasks
       ->exec("drush site:install --account-name=admin --site-name={$project} --locale=en --yes  {$profile}")
       ->run();
     $this->siteEnableModules([
-      'redis',
       'search_api',
       'search_api_solr',
+      'search_api_solr_admin',
       'search_api_pantheon',
+      'search_api_pantheon_admin'
     ]);
   }
 

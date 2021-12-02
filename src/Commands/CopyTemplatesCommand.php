@@ -15,22 +15,24 @@ use Pantheon\TerminusHello\Model\Greeter;
  */
 class CopyTemplatesCommand extends TerminusCommand
 {
+
   /**
    * Copy Templates
    *
    * @command demigod:copy-templates
    * @aliases dgct
+   *
    * @param string $site_name
    *
+   * @throws \Exception
    */
     public function copyTemplates(string $site_name)
     {
-        $base_dir = dirname(dirname(__DIR__));
+        $base_dir = dirname(__DIR__, 2);
         $clone_dir = $_SERVER['HOME'] . '/pantheon-local-copies/' . $site_name;
         if (!is_dir($clone_dir)) {
           throw new \Exception("TODO: clone this automatically if it doesn't exist.");
         }
-        // search for "pv, mysql-client" install if necessary
         foreach ([
                    $clone_dir . '/web/sites/default',
                    $clone_dir . '/db',
@@ -74,5 +76,6 @@ class CopyTemplatesCommand extends TerminusCommand
         if (php_uname("s") == "Darwin") {
           exec('brew bundle install');
         }
+
     }
 }

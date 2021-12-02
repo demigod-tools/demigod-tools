@@ -1,13 +1,11 @@
-
 # Demigod Tools
 
-[![CircleCI](https://circleci.com/gh/pantheon-systems/terminus-plugin-example.svg?style=shield)](https://circleci.com/gh/pantheon-systems/terminus-plugin-example)
 [![Terminus v3.x Compatible](https://img.shields.io/badge/terminus-03.x-green.svg)](https://github.com/pantheon-systems/terminus-plugin-example/tree/3.x)
+
+![Create a Simple Docker-Compose cluster for local development](docs/docker-compose.svg "Solr at pantheon")
 
 A simple plugin for Terminus-CLI version 3.0 or newer that adds a docker compose and environment variables.
 
-Adds commands 'hello' and 'auth:hello' to Terminus. Learn more about Terminus Plugins in the
-[Terminus Plugins documentation](https://pantheon.io/docs/terminus/plugins)
 
 ## Requirements
 
@@ -29,6 +27,9 @@ Adds commands 'hello' and 'auth:hello' to Terminus. Learn more about Terminus Pl
 
   See the Readme on the robo repository
 
+* [php](https://php.net)
+
+  Version 7.4+
 
 ## Installation
 
@@ -49,7 +50,10 @@ These commands require no configuration
 terminus local:clone {site_name}
 
 # Copy the demigod docker templates into place
-terminus demigod:copy-templates {site_name}
+terminus demigod:copy-templates {SITE_NAME}
+
+# leaving you in the site directory
+>$HOME/pantheon-local-copies/{SITE_NAME}
 
 # use robo to launch the containers
 robo docker:up
