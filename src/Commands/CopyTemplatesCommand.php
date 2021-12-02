@@ -71,5 +71,8 @@ class CopyTemplatesCommand extends TerminusCommand
         chdir($clone_dir);
         exec('echo ".idea\n.envrc\nlogs/*\ndb/*\n.DS_Store" >> .gitignore ');
         exec('direnv allow');
+        if (php_uname("s") == "Darwin") {
+          exec('brew bundle install');
+        }
     }
 }
