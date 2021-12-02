@@ -103,8 +103,8 @@ services:
       - "-c"
       - "exec solr -c -f -z zk:2181; exec solr create_collection -c ${PROJECT_NAME} -d /opt/search_api_solr/jump-start/solr8/cloud-config-set;"
     healthcheck:
-      test: [ "CMD-SHELL", "curl -sf http://localhost:8983/solr/${PROJECT_NAME}/admin/ping?wt=json | jq -r .status | grep -iq ok || exit 1" ]
-      start_period: 60s
+      test: [ "CMD-SHELL", "/healthcheck.sh" ]
+      start_period: 15s
       interval: 30s
       timeout: 5s
       retries: 3
