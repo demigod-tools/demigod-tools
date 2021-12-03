@@ -78,4 +78,25 @@ class CopyTemplatesCommand extends TerminusCommand
         }
 
     }
+
+    /**
+     * Get the site framework.
+     *
+     * @command demigod:get-framework
+     *
+     * @return string The site framework, pulled from site:info.
+     */
+    public function getFramework() : string {
+      $output = [];
+      exec( 'terminus site:info | grep Framework | xargs', $output );
+
+      // If site:info didn't give us the output we expected, bail early.
+      if ( empty( $output ) ) {
+        return '❓ Could not determine site framework.';
+      }
+
+      $framework = str_replace( 'Framework ', '', $output[0] );
+
+      return $framework;
+    }
 }
