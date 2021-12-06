@@ -68,6 +68,7 @@ class RoboFile extends \Robo\Tasks
    */
   public function siteDevelopmentMods()
   {
+    $this->siteDisableModules(['search']);
     $this->siteEnableModules([
       'devel',
       'search_api',
@@ -125,6 +126,16 @@ class RoboFile extends \Robo\Tasks
   protected function siteEnableModules(array $modules = ['redis'])
   {
     return $this->dockerDrush('pm-enable --yes ' . join(' ', $modules));
+  }
+
+  /**
+   * @param array|string[] $modules
+   *
+   * @return Robo\Result
+   */
+  protected function siteDisableModules(array $modules = ['redis'])
+  {
+    return $this->dockerDrush('pm-uninstall --yes ' . join(' ', $modules));
   }
 
   /**
