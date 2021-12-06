@@ -59,12 +59,26 @@ class RoboFile extends \Robo\Tasks
       ->interactive(true)
       ->exec("drush site:install --account-name=admin --site-name={$project} --locale=en --yes  {$profile}")
       ->run();
+  }
+
+  /**
+   * Install development modules into the local instance of drupal.
+   *
+   * @return void
+   */
+  public function siteDevelopmentMods()
+  {
     $this->siteEnableModules([
+      'devel',
       'search_api',
       'search_api_solr',
-      'search_api_solr_admin',
+      'search_api_page',
       'search_api_pantheon',
-      'search_api_pantheon_admin'
+      'search_api_solr_admin',
+      'search_api_solr_devel',
+      'search_api_pantheon_admin',
+      'search_api_spellcheck',
+      'search_api_autocomplete',
     ]);
   }
 

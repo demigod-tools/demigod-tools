@@ -34,10 +34,11 @@ class CopyTemplatesCommand extends TerminusCommand
           throw new \Exception("TODO: clone this automatically if it doesn't exist.");
         }
         foreach ([
-                   $clone_dir . '/web/sites/default',
+                   $clone_dir . '/web/sites/default/files/translations',
+                   $clone_dir . '/web/sites/default/temp',
+                   $clone_dir . '/web/sites/default/private',
                    $clone_dir . '/db',
                    $clone_dir . '/logs',
-
                  ] as $directory) {
           if (!is_dir($directory)) {
             mkdir($directory, 0777, true);
@@ -59,6 +60,11 @@ class CopyTemplatesCommand extends TerminusCommand
                         $contents = file_get_contents($iterator->current()->getRealPath());
                         $contents = str_replace('**PROJECT_NAME**', $site_name, $contents);
                         $contents = str_replace('**PROJECT_PATH**', $clone_dir, $contents);
+                        $contents = str_replace(
+                          '**HASH_SALT**', 
+                          \Drupal\Component\Utility\Crypt::randomBytesBase64(55), 
+                          $contents
+                        );
                         file_put_contents($clone_dir . '/' . $iterator->current()->getFilename(), $contents);
                         break;
 
