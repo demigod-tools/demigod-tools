@@ -15,7 +15,7 @@ A simple plugin for Terminus-CLI version 3.0 or newer that adds a docker compose
 
 * [direnv](https://direnv.net) and [Pipe Viewer/pv](http://www.ivarch.com/programs/pv.shtml)
 
-  `brew install direnv pv`
+  `brew install direnv pv mysql-client`
 
    Also, be sure to integrate DIRENV into your shell using the information here: https://direnv.net/docs/hook.html
 

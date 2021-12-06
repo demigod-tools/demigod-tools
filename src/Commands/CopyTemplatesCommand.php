@@ -1,12 +1,8 @@
 <?php
-/**
- * This variation on the Hello command shows how use the `@authenticated`
- * attribute to signal Terminus to require an authenticated session to
- * use this command.
- */
 
 namespace Pantheon\DemigodTools\Commands;
 
+use Pantheon\DemigodTools\Utility\Crypt;
 use Pantheon\Terminus\Commands\TerminusCommand;
 use Pantheon\TerminusHello\Model\Greeter;
 
@@ -34,10 +30,11 @@ class CopyTemplatesCommand extends TerminusCommand
           throw new \Exception("TODO: clone this automatically if it doesn't exist.");
         }
         foreach ([
-                   $clone_dir . '/web/sites/default',
+                   $clone_dir . '/web/sites/default/files/translations',
+                   $clone_dir . '/web/sites/default/temp',
+                   $clone_dir . '/web/sites/default/private',
                    $clone_dir . '/db',
                    $clone_dir . '/logs',
-
                  ] as $directory) {
           if (!is_dir($directory)) {
             mkdir($directory, 0777, true);
