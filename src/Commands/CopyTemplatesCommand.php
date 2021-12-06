@@ -29,20 +29,25 @@ class CopyTemplatesCommand extends TerminusCommand
         if (!is_dir($clone_dir)) {
           throw new \Exception("TODO: clone this automatically if it doesn't exist.");
         }
-        foreach ([
-                   $clone_dir . '/web/sites/default/files/translations',
-                   $clone_dir . '/web/sites/default/temp',
-                   $clone_dir . '/web/sites/default/private',
-                   $clone_dir . '/db',
-                   $clone_dir . '/logs',
-                 ] as $directory) {
-          if (!is_dir($directory)) {
-            mkdir($directory, 0777, true);
+
+        $framework = $this->getFramework();
+
+        if ( $framework !== 'wordpress' ) {
+          foreach ([
+                     $clone_dir . '/web/sites/default/files/translations',
+                     $clone_dir . '/web/sites/default/temp',
+                     $clone_dir . '/web/sites/default/private',
+                     $clone_dir . '/db',
+                     $clone_dir . '/logs',
+                   ] as $directory) {
+            if (!is_dir($directory)) {
+              mkdir($directory, 0777, true);
+            }
+            touch($directory . "/.gitkeep");
           }
-          touch($directory . "/.gitkeep");
         }
 
-        $this->copyFrameworkFiles( $this->getFramework(), $site_name, $base_dir, $clone_dir );
+        $this->copyFrameworkFiles( $framework, $site_name, $base_dir, $clone_dir );
 
         chdir($clone_dir);
         exec('echo ".idea\n.envrc\nlogs/*\ndb/*\n.DS_Store" >> .gitignore ');
