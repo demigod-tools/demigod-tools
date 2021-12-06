@@ -53,6 +53,15 @@ class CopyTemplatesCommand extends TerminusCommand
 
     }
 
+    /**
+     * Copy the template files based on the framework.
+     *
+     * @param string $framework The CMS framework identified by getFramework().
+     * @param array ...$args Array of arguments required for copying files.
+     *              $site_name The site name that was called into copyTemplates.
+     *              $base_dir This plugin's base directory.
+     *              $clone_dir The directory the site was cloned into.
+     */
     private function copyFrameworkFiles( string $framework, array ...$args ) {
       list( $site_name, $base_dir, $clone_dir ) = $args;
       $iterator = new \DirectoryIterator("$base_dir/$framework/templates");
@@ -72,13 +81,6 @@ class CopyTemplatesCommand extends TerminusCommand
                       $contents = str_replace('**PROJECT_PATH**', $clone_dir, $contents);
                       file_put_contents($clone_dir . '/' . $iterator->current()->getFilename(), $contents);
                       break;
-
-                  case 'wp-config.php':
-                    copy(
-                      $iterator->current()->getRealPath(),
-                      $clone_dir . '/web/wp-config.php'
-                    );
-                    break;
 
                   default:
                       copy(
