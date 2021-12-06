@@ -70,6 +70,17 @@ class CopyTemplatesCommand extends TerminusCommand
                       $contents = file_get_contents($iterator->current()->getRealPath());
                       $contents = str_replace('**PROJECT_NAME**', $site_name, $contents);
                       $contents = str_replace('**PROJECT_PATH**', $clone_dir, $contents);
+
+                      if ( $framework === 'wordpress' ) {
+                        // Generate WP salts.
+                        $salts = $this->getWpSalts();
+
+                        // Update the .envrc file with the generated salts.
+                        foreach( $salts as $salt ) {
+                          $contents = str_replace( "**$salt[0]**", $salt[1], $contents );
+                        }
+                      }
+
                       file_put_contents($clone_dir . '/' . $iterator->current()->getFilename(), $contents);
                       break;
 
@@ -88,6 +99,38 @@ class CopyTemplatesCommand extends TerminusCommand
               }
           }
       }
+    }
+
+    /**
+     * Get random WP salts.
+     *
+     * @command demigod:get-salts
+     *
+     * @return array An array of secure keys for a wp-config.php file.
+     */
+    public function getWpSalts() : array {
+      $salts = [];
+      $i = 0;
+      exec( 'curl https://api.wordpress.org/secret-key/1.1/salt/', $salts );
+      foreach ( $salts as $salt ) {
+        // TODO: There's probably a cleverer regex way of doing this.
+        // For now, we're trying to strip out the define('key','salt'); out of the strings we get back from the curl function.
+        $patterns = [
+          'define(\'',
+          '\');',
+          "\t"
+        ];
+        $stripped = str_replace( $patterns, '', $salt );
+        $result = explode( "',", $stripped );
+        $result[1] = str_replace( '\'', '', trim( $result[1] ) );
+
+        // Store the constant name and value into the $salts variable and unset the raw exec output.
+        $salts[ $result[0] ] = $result[1];
+        unset( $salts[ $i ] );
+        $i++;
+      }
+
+      return $salts;
     }
 
     /**
