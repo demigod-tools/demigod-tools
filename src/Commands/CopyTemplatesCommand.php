@@ -62,7 +62,7 @@ class CopyTemplatesCommand extends TerminusCommand
      *              $base_dir This plugin's base directory.
      *              $clone_dir The directory the site was cloned into.
      */
-    private function copyFrameworkFiles( string $framework, array ...$args ) {
+    private function copyFrameworkFiles( string $framework, ...$args ) {
       list( $site_name, $base_dir, $clone_dir ) = $args;
       $iterator = new \DirectoryIterator("$base_dir/$framework/templates");
       for ($iterator->rewind(); $iterator->valid(); $iterator->next()) {
