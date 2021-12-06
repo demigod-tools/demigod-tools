@@ -92,7 +92,7 @@ services:
       - "./logs:/var/solr/logs"
     environment:
       ZK_HOST: "zk:2181"
-      VERBOSE: true
+      VERBOSE: "true"
       SOLR_JAVA_MEM: "-Xms2G -Xmx2G"
       SOLR_HOST: "solr"
       SOLR_PORT: "8983"
