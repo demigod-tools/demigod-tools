@@ -1,12 +1,8 @@
 <?php
-/**
- * This variation on the Hello command shows how use the `@authenticated`
- * attribute to signal Terminus to require an authenticated session to
- * use this command.
- */
 
 namespace Pantheon\DemigodTools\Commands;
 
+use Pantheon\DemigodTools\Utility\Crypt;
 use Pantheon\Terminus\Commands\TerminusCommand;
 use Pantheon\TerminusHello\Model\Greeter;
 
@@ -61,8 +57,8 @@ class CopyTemplatesCommand extends TerminusCommand
                         $contents = str_replace('**PROJECT_NAME**', $site_name, $contents);
                         $contents = str_replace('**PROJECT_PATH**', $clone_dir, $contents);
                         $contents = str_replace(
-                          '**HASH_SALT**', 
-                          \Drupal\Component\Utility\Crypt::randomBytesBase64(55), 
+                          '**HASH_SALT**',
+                          Crypt::randomBytesBase64(55),
                           $contents
                         );
                         file_put_contents($clone_dir . '/' . $iterator->current()->getFilename(), $contents);
