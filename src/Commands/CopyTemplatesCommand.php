@@ -64,7 +64,7 @@ class CopyTemplatesCommand extends TerminusCommand
      */
     private function copyFrameworkFiles( string $framework, ...$args ) {
       list( $site_name, $base_dir, $clone_dir ) = $args;
-      $iterator = new \DirectoryIterator("$base_dir/$framework/templates");
+      $iterator = new \DirectoryIterator("$base_dir/templates/$framework");
       for ($iterator->rewind(); $iterator->valid(); $iterator->next()) {
           if (is_file($iterator->current()->getRealPath())) {
               switch ($iterator->current()->getFilename()) {
