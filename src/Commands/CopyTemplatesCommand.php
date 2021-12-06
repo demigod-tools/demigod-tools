@@ -98,10 +98,10 @@ class CopyTemplatesCommand extends TerminusCommand
                       file_put_contents($clone_dir . '/' . $iterator->current()->getFilename(), $contents);
                       break;
 
-                  case 'wp-config.php':
+                  case 'wp-config-local.php':
                     copy(
                       $iterator->current()->getRealPath(),
-                      $clone_dir . '/web/wp-config.php'
+                      $clone_dir . '/wp-config-local.php'
                     );
                     break;
 
