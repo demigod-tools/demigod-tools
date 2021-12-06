@@ -104,8 +104,6 @@ class CopyTemplatesCommand extends TerminusCommand
     /**
      * Get random WP salts.
      *
-     * @command demigod:get-salts
-     *
      * @return array An array of secure keys for a wp-config.php file.
      */
     public function getWpSalts() : array {
