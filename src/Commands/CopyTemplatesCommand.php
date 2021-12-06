@@ -109,7 +109,7 @@ class CopyTemplatesCommand extends TerminusCommand
     public function getWpSalts() : array {
       $salts = [];
       $i = 0;
-      exec( 'curl https://api.wordpress.org/secret-key/1.1/salt/', $salts );
+      exec( 'curl -s https://api.wordpress.org/secret-key/1.1/salt/', $salts );
       foreach ( $salts as $salt ) {
         // TODO: There's probably a cleverer regex way of doing this.
         // For now, we're trying to strip out the define('key','salt'); out of the strings we get back from the curl function.
