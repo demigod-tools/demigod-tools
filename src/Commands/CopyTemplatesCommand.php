@@ -53,6 +53,15 @@ class CopyTemplatesCommand extends TerminusCommand
 
     }
 
+    /**
+     * Copy the template files based on the framework.
+     *
+     * @param string $framework The CMS framework identified by getFramework().
+     * @param array ...$args Array of arguments required for copying files.
+     *              $site_name The site name that was called into copyTemplates.
+     *              $base_dir This plugin's base directory.
+     *              $clone_dir The directory the site was cloned into.
+     */
     private function copyFrameworkFiles( string $framework, ...$args ) {
       list( $site_name, $base_dir, $clone_dir ) = $args;
       $iterator = new \DirectoryIterator("$base_dir/templates/$framework");
