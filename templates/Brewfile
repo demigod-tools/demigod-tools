@@ -1,6 +1,6 @@
 tap "pantheon-systems/external"
 brew "direnv"
 brew "jq"
-brew "mysql-client"
+brew "mysql-client", link: true
 brew "pv"
 brew "pantheon-systems/external/terminus"
