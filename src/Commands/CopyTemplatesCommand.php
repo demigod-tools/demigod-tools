@@ -123,8 +123,8 @@ class CopyTemplatesCommand extends TerminusCommand
         $result[1] = str_replace( '\'', '', trim( $result[1] ) );
 
         // Store the constant name and value into the $salts variable and unset the raw exec output.
-        $salts[ $result[0] ] = $result[1];
         unset( $salts[ $i ] );
+        $salts[ $result[0] ] = $result[1];
         $i++;
       }
 
