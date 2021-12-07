@@ -52,7 +52,7 @@ class CopyTemplatesCommand extends TerminusCommand {
       }
       touch($clone_dir . "/" . $directory . "/.gitkeep");
     }
-    exec("git add db/.gitkeep logs/.gitkeep");
+    exec("git add -f db/.gitkeep logs/.gitkeep");
     $iterator = new \DirectoryIterator($base_dir . '/templates');
     for ($iterator->rewind(); $iterator->valid(); $iterator->next()) {
       if (is_file($iterator->current()->getRealPath())) {
