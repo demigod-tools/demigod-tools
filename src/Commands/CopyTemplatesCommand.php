@@ -170,4 +170,29 @@ class CopyTemplatesCommand extends TerminusCommand
 
       return $framework;
     }
+
+    /**
+     * @command demigod:copy-wp
+     *
+     * @param string $site_name
+     */
+    public function copyWpToWeb( string $site_name ) {
+      $clone_dir = $_SERVER['HOME'] . '/pantheon-local-copies/' . $site_name;
+
+      // If this isn't a git repository, throw a warning and bail.
+      if ( ! is_dir( "$clone_dir/.git" ) ) {
+        return '⚠️ Cloned Git repository not found. Did you run terminus local:clone?';
+      }
+
+      // If this isn't a WP site, we need to bail early.
+      if ( $this->getFramework() !== 'wordpress' ) {
+        return '⚠️ The requested site does not appear to be a WordPress site. This command should only be run on WordPress frameworks.';
+      }
+
+      // If there's no web directory in the $clone_dir, we probably need to run the copyTemplates method. We'll just do it now.
+      if ( ! is_dir( "$clone_dir/web" ) ) {
+        $this->copyTemplates( $site_name );
+      }
+
+    }
 }
