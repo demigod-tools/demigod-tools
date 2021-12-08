@@ -188,7 +188,7 @@ class CopyTemplatesCommand extends TerminusCommand {
       }
 
       // If this isn't a WP site, we need to bail early.
-      if ( $this->getFramework() !== 'wordpress' ) {
+      if ( $this->getFramework( $site_name ) !== 'wordpress' ) {
         return '⚠️ The requested site does not appear to be a WordPress site. This command should only be run on WordPress frameworks.';
       }
 
