@@ -45,6 +45,11 @@ class CopyTemplatesCommand extends TerminusCommand
             }
             touch($directory . "/.gitkeep");
           }
+        } else {
+          // For WordPress, we're just going to create the web directory, because that's what the Nginx config expects.
+          $directory = "$clone_dir/web/";
+          mkdir( $directory, 0777, true );
+          touch( "$directory/.gitkeep" );
         }
 
         $this->copyFrameworkFiles( $framework, $site_name, $base_dir, $clone_dir );
