@@ -54,7 +54,7 @@ class CopyTemplatesCommand extends TerminusCommand {
     }
     exec("git add -f db/.gitkeep logs/.gitkeep");
 
-    $this->copyFrameworkFiles( $this->getFramework(), $site_name, $base_dir, $clone_dir );
+    $this->copyFrameworkFiles( $this->getFramework( $site_name ), $site_name, $base_dir, $clone_dir );
     $this->processGitIgnore($clone_dir);
 
     exec('direnv allow');
@@ -74,7 +74,7 @@ class CopyTemplatesCommand extends TerminusCommand {
    *              $clone_dir The directory the site was cloned into.
    */
   private function copyFrameworkFiles( string $framework, ...$args ) {
-    list( $site_name, $base_dir, $clone_dir ) = $args;
+    [ $site_name, $base_dir, $clone_dir ] = $args;
     $iterator = new \DirectoryIterator("$base_dir/templates/$framework");
     for ($iterator->rewind(); $iterator->valid(); $iterator->next()) {
         if (is_file($iterator->current()->getRealPath())) {
@@ -113,11 +113,13 @@ class CopyTemplatesCommand extends TerminusCommand {
    *
    * @command demigod:get-framework
    *
+   * @param string $site_name The site name to query.
+   *
    * @return string The site framework, pulled from site:info.
    */
-  public function getFramework() : string {
+  public function getFramework( string $site_name ) : string {
     $output = [];
-    exec( 'terminus site:info | grep Framework | xargs', $output );
+    exec( "terminus site:info $site_name --format=json | jq -r .framework", $output );
 
     // If site:info didn't give us the output we expected, bail early.
     if ( empty( $output ) ) {
