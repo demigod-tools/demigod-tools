@@ -61,6 +61,8 @@ class CopyTemplatesCommand extends TerminusCommand {
     if (php_uname("s") == "Darwin") {
       exec('brew bundle install');
     }
+    echo (file_get_contents($base_dir . "/docs/demigod.txt"));
+  }
 
     /**
      * Copy the template files based on the framework.
