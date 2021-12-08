@@ -9,8 +9,19 @@ use Pantheon\TerminusHello\Model\Greeter;
 /**
  * Say hello to the user
  */
-class CopyTemplatesCommand extends TerminusCommand
-{
+class CopyTemplatesCommand extends TerminusCommand {
+
+  /**
+   * @var int[]
+   */
+  protected static $toIgnore = [
+    ".idea" => 1,
+    ".envrc" => 1,
+    "logs/*" => 1,
+    "db/*" => 1,
+    ".DS_Store" => 1,
+    "Brewfile.loc*" => 1,
+  ];
 
   /**
    * Copy Templates
@@ -22,34 +33,29 @@ class CopyTemplatesCommand extends TerminusCommand
    *
    * @throws \Exception
    */
-    public function copyTemplates(string $site_name)
-    {
-        $base_dir = dirname(__DIR__, 2);
-        $clone_dir = $_SERVER['HOME'] . '/pantheon-local-copies/' . $site_name;
-        if (!is_dir($clone_dir)) {
-          throw new \Exception("TODO: clone this automatically if it doesn't exist.");
-        }
-        foreach ([
-                   $clone_dir . '/web/sites/default/files/translations',
-                   $clone_dir . '/web/sites/default/temp',
-                   $clone_dir . '/web/sites/default/private',
-                   $clone_dir . '/db',
-                   $clone_dir . '/logs',
-                 ] as $directory) {
-          if (!is_dir($directory)) {
-            mkdir($directory, 0777, true);
-          }
-          touch($directory . "/.gitkeep");
-        }
+  public function copyTemplates(string $site_name) {
+    $base_dir = dirname(__DIR__, 2);
+    $clone_dir = $_SERVER['HOME'] . '/pantheon-local-copies/' . $site_name;
+    if (!is_dir($clone_dir)) {
+      throw new \Exception("TODO: clone this automatically if it doesn't exist.");
+    }
+    chdir($clone_dir);
+    foreach ([
+               'web/sites/default/files/translations',
+               'web/sites/default/temp',
+               'web/sites/default/private',
+               'db',
+               'logs',
+             ] as $directory) {
+      if (!is_dir($directory)) {
+        mkdir($clone_dir . "/" . $directory, 0777, TRUE);
+      }
+      touch($clone_dir . "/" . $directory . "/.gitkeep");
+    }
+    exec("git add -f db/.gitkeep logs/.gitkeep");
 
-        $this->copyFrameworkFiles( $this->getFramework(), $site_name, $base_dir, $clone_dir );
-
-        chdir($clone_dir);
-        exec('echo ".idea\n.envrc\nlogs/*\ndb/*\n.DS_Store" >> .gitignore ');
-        exec('direnv allow');
-        if (php_uname("s") == "Darwin") {
-          exec('brew bundle install');
-        }
+    $this->copyFrameworkFiles( $this->getFramework(), $site_name, $base_dir, $clone_dir );
+    $this->processGitIgnore($clone_dir);
 
     }
 
@@ -79,6 +85,11 @@ class CopyTemplatesCommand extends TerminusCommand
                       $contents = file_get_contents($iterator->current()->getRealPath());
                       $contents = str_replace('**PROJECT_NAME**', $site_name, $contents);
                       $contents = str_replace('**PROJECT_PATH**', $clone_dir, $contents);
+                      $contents = str_replace(
+                        '**HASH_SALT**',
+                        Crypt::randomBytesBase64(55),
+                        $contents
+                      );
                       file_put_contents($clone_dir . '/' . $iterator->current()->getFilename(), $contents);
                       break;
 
@@ -112,4 +123,17 @@ class CopyTemplatesCommand extends TerminusCommand
 
       return $framework;
     }
+
+  /**
+   * Make sure the ignores are in the .gitignore preventing duplicates.
+   *
+   * @param $directory
+   */
+  protected function processGitIgnore($directory) {
+    $contents = explode(PHP_EOL, file_get_contents($directory . "/.gitignore"));
+    $contents = array_combine($contents, array_fill(0, count($contents), 1));
+    $contents = array_merge($contents, self::$toIgnore);
+    file_put_contents($directory . "/.gitignore", implode(PHP_EOL, array_keys($contents)));
+  }
+
 }
