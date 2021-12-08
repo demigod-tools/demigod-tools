@@ -181,6 +181,7 @@ class RoboFile extends \Robo\Tasks
   }
 
   /**
+   * @aliases spd
    * Gets the database from Pantheon.
    *
    * @param string $env
@@ -190,7 +191,17 @@ class RoboFile extends \Robo\Tasks
   {
     $project = getenv('PROJECT_NAME');
     $backup_file_name = "{$project}.sql.gz";
-    if (!file_exists(__DIR__ . "/db/{$backup_file_name}")) {
+    $file = new SplFileInfo(__DIR__ . "/db/{$backup_file_name}");
+    if ($file->isFile()) {
+      // if backup is older than a day, delete it and get a new one
+      $changed = \DateTime::createFromFormat('U', $file->getCTime());
+      $age = (new DateTime())->diff($changed);
+      $this->say('Backup age: ' . $age->format('%h') . ' hours');
+      if (intval($age->format('%h')) >= 24) {
+        unlink($file->getRealPath());
+      }
+    }
+    if (!$file->isFile()) {
       $siteEnv = $project . '.' . $env;
       $this->say('Creating backup on Pantheon.');
       $this->taskExec('terminus')
@@ -198,14 +209,15 @@ class RoboFile extends \Robo\Tasks
         ->run();
       $this->say('Downloading backup file.');
       $this->taskExec('terminus')
-        ->args('backup:get', $siteEnv, "--to=db/{$backup_file_name}", '--element=db')
+        ->args('backup:get', $siteEnv, "--to=db/" . $backup_file_name, '--element=db')
         ->run();
+      $file = new SplFileInfo(__DIR__ . "/db/{$backup_file_name}");
     }
     $this->say('Unzipping and importing data');
     $mysqlCommand = vsprintf(
-      'pv "./db/%s" | gunzip | mysql -u root --password=%s --host 127.0.0.1 --port 33067 --protocol tcp %s ',
+      'pv "%s" | gunzip | mysql -u root --password=%s --host 127.0.0.1 --port 33067 --protocol tcp %s ',
       [
-        $backup_file_name,
+        $file->getRealPath(),
         getenv('MYSQL_ROOT_PASSWORD'),
         getenv('MYSQL_DATABASE'),
       ]
@@ -215,6 +227,7 @@ class RoboFile extends \Robo\Tasks
   }
 
   /**
+   * @aliases spf
    * Gets files folder from pantheon
    *
    * @param $env
@@ -223,9 +236,19 @@ class RoboFile extends \Robo\Tasks
   function sitePullFiles(string $env = 'live')
   {
     $project = getenv('PROJECT_NAME');
+    $siteEnv = $project . '.' . $env;
     $backup_filename = __DIR__ . '/db/files.tar.gz';
-    if (!file_exists($backup_filename)) {
-      $siteEnv = $project . '.' . $env;
+    $file = new SplFileInfo($backup_filename);
+    if ($file->isFile()) {
+      // if backup is older than a day, delete it and get a new one
+      $changed = \DateTime::createFromFormat('U', $file->getCTime());
+      $age = (new DateTime())->diff($changed);
+      $this->say("Backup age: " . $age->format('%h') . ' hours');
+      if (intval($age->format('%h')) >= 24) {
+        unlink($file->getRealPath());
+      }
+    }
+    if (!$file->isFile()) {
       $download = 'files_' . $siteEnv;
       $this->say('Creating files backup on Pantheon.');
       $this->taskExec('terminus')
@@ -233,19 +256,21 @@ class RoboFile extends \Robo\Tasks
         ->run();
       $this->say('Downloading files.');
       $this->taskExec('terminus')
-        ->args('backup:get', $siteEnv, '--to=db/files.tar.gz', '--element=files')
+        ->args('backup:get', $siteEnv, '--to=' . $backup_filename, '--element=files')
         ->run();
+      $file = new SplFileInfo($backup_filename);
     }
     $this->say('Unzipping archive');
     $this->taskExec('tar')
       ->args(
         '-xv',
         '-C./db/',
-        '-f'. $backup_filename
+        '-f'. $file->getRealPath()
       )
       ->run();
     $this->_rename(__DIR__ . '/db/files_' . $env, __DIR__ . '/db/files');
     $this->_copyDir( __DIR__ . '/db/files', __DIR__ . '/web/sites/default/files' );
+    exec("rm -rf db/files");
   }
 
 
@@ -267,7 +292,7 @@ class RoboFile extends \Robo\Tasks
     $response = $this->confirm("Are you sure you want to delete the vendor folder and all dependencies installed by composer?");
     if ($response == true) {
       $this->_exec("composer clear-cache");
-	    $this->_exec("rm -Rf vendor web/modules/composer web/themes/composer web/modules/contrib web/themes/contrib web/core composer.lock");
+      $this->_exec("rm -Rf vendor web/modules/composer web/themes/composer web/modules/contrib web/themes/contrib web/core composer.lock");
       return exec("composer install");
     }
   }
