@@ -64,70 +64,70 @@ class CopyTemplatesCommand extends TerminusCommand {
     echo (file_get_contents($base_dir . "/docs/demigod.txt"));
   }
 
-    /**
-     * Copy the template files based on the framework.
-     *
-     * @param string $framework The CMS framework identified by getFramework().
-     * @param array ...$args Array of arguments required for copying files.
-     *              $site_name The site name that was called into copyTemplates.
-     *              $base_dir This plugin's base directory.
-     *              $clone_dir The directory the site was cloned into.
-     */
-    private function copyFrameworkFiles( string $framework, ...$args ) {
-      list( $site_name, $base_dir, $clone_dir ) = $args;
-      $iterator = new \DirectoryIterator("$base_dir/templates/$framework");
-      for ($iterator->rewind(); $iterator->valid(); $iterator->next()) {
-          if (is_file($iterator->current()->getRealPath())) {
-              switch ($iterator->current()->getFilename()) {
-                  case 'settings.local.php':
-                      copy(
-                          $iterator->current()->getRealPath(),
-                          $clone_dir . '/web/sites/default/settings.local.php'
-                      );
-                      break;
+  /**
+   * Copy the template files based on the framework.
+   *
+   * @param string $framework The CMS framework identified by getFramework().
+   * @param array ...$args Array of arguments required for copying files.
+   *              $site_name The site name that was called into copyTemplates.
+   *              $base_dir This plugin's base directory.
+   *              $clone_dir The directory the site was cloned into.
+   */
+  private function copyFrameworkFiles( string $framework, ...$args ) {
+    list( $site_name, $base_dir, $clone_dir ) = $args;
+    $iterator = new \DirectoryIterator("$base_dir/templates/$framework");
+    for ($iterator->rewind(); $iterator->valid(); $iterator->next()) {
+        if (is_file($iterator->current()->getRealPath())) {
+          switch ($iterator->current()->getFilename()) {
+            case 'settings.local.php':
+              copy(
+                  $iterator->current()->getRealPath(),
+                  $clone_dir . '/web/sites/default/settings.local.php'
+              );
+              break;
 
-                  case '.envrc':
-                      $contents = file_get_contents($iterator->current()->getRealPath());
-                      $contents = str_replace('**PROJECT_NAME**', $site_name, $contents);
-                      $contents = str_replace('**PROJECT_PATH**', $clone_dir, $contents);
-                      $contents = str_replace(
-                        '**HASH_SALT**',
-                        Crypt::randomBytesBase64(55),
-                        $contents
-                      );
-                      file_put_contents($clone_dir . '/' . $iterator->current()->getFilename(), $contents);
-                      break;
+            case '.envrc':
+              $contents = file_get_contents($iterator->current()->getRealPath());
+              $contents = str_replace('**PROJECT_NAME**', $site_name, $contents);
+              $contents = str_replace('**PROJECT_PATH**', $clone_dir, $contents);
+              $contents = str_replace(
+                '**HASH_SALT**',
+                Crypt::randomBytesBase64(55),
+                $contents
+              );
+              file_put_contents($clone_dir . '/' . $iterator->current()->getFilename(), $contents);
+              break;
 
-                  default:
-                      copy(
-                          $iterator->current()->getRealPath(),
-                          $clone_dir . '/' . $iterator->current()->getFilename()
-                      );
-              }
+            default:
+              copy(
+                  $iterator->current()->getRealPath(),
+                  $clone_dir . '/' . $iterator->current()->getFilename()
+              );
           }
-      }
+        }
+    }
+  }
+
+  /**
+   * Get the site framework.
+   *
+   * @command demigod:get-framework
+   *
+   * @return string The site framework, pulled from site:info.
+   */
+  public function getFramework() : string {
+    $output = [];
+    exec( 'terminus site:info | grep Framework | xargs', $output );
+
+    // If site:info didn't give us the output we expected, bail early.
+    if ( empty( $output ) ) {
+      return '❓ Could not determine site framework.';
     }
 
-    /**
-     * Get the site framework.
-     *
-     * @command demigod:get-framework
-     *
-     * @return string The site framework, pulled from site:info.
-     */
-    public function getFramework() : string {
-      $output = [];
-      exec( 'terminus site:info | grep Framework | xargs', $output );
+    $framework = str_replace( 'Framework ', '', $output[0] );
 
-      // If site:info didn't give us the output we expected, bail early.
-      if ( empty( $output ) ) {
-        return '❓ Could not determine site framework.';
-      }
-
-      $framework = str_replace( 'Framework ', '', $output[0] );
-
-      return $framework;
-    }
+    return $framework;
+  }
 
   /**
    * Make sure the ignores are in the .gitignore preventing duplicates.
