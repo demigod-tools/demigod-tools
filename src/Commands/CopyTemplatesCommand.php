@@ -57,6 +57,9 @@ class CopyTemplatesCommand extends TerminusCommand {
     $this->copyFrameworkFiles( $this->getFramework(), $site_name, $base_dir, $clone_dir );
     $this->processGitIgnore($clone_dir);
 
+    exec('direnv allow');
+    if (php_uname("s") == "Darwin") {
+      exec('brew bundle install');
     }
 
     /**
