@@ -74,7 +74,7 @@ class CopyTemplatesCommand extends TerminusCommand {
    *              $clone_dir The directory the site was cloned into.
    */
   private function copyFrameworkFiles( string $framework, ...$args ) {
-    list( $site_name, $base_dir, $clone_dir ) = $args;
+    [ $site_name, $base_dir, $clone_dir ] = $args;
     $iterator = new \DirectoryIterator("$base_dir/templates/$framework");
     for ($iterator->rewind(); $iterator->valid(); $iterator->next()) {
         if (is_file($iterator->current()->getRealPath())) {
