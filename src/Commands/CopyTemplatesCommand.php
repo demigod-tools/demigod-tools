@@ -4,7 +4,6 @@ namespace Pantheon\DemigodTools\Commands;
 
 use Pantheon\DemigodTools\Utility\Crypt;
 use Pantheon\Terminus\Commands\TerminusCommand;
-use Pantheon\TerminusHello\Model\Greeter;
 
 /**
  * Say hello to the user
