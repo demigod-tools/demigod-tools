@@ -85,7 +85,7 @@ services:
   solr:
     container_name: ${PROJECT_NAME}-solr
     image: ${SOLR_CONTAINER}
-    restart: always
+    restart: on-failure
     depends_on:
       - zk
     networks:
