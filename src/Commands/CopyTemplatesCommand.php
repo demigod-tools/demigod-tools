@@ -53,17 +53,7 @@ class CopyTemplatesCommand extends TerminusCommand {
     }
     exec("git add -f db/.gitkeep logs/.gitkeep");
 
-    // We only have two types of templates -- drupal or wordpress. We might get any of a bunch of different types of frameworks back that we need to map to those two template types. Start by identifying some "known" allowed frameworks. This list may expand to include more frameworks.
-    $allowed_frameworks = [ 'wordpress', 'wordpress_network', 'drupal', 'drupal8' ];
-    // Identify the framework.
-    $framework = $this->getFramework( $site_name );
-    // If the framework isn't in the allowed_frameworks list, bail.
-    if ( ! in_array( $framework, $allowed_frameworks ) ) {
-      throw new \Exception( $framework );
-    }
-    // Determine if the framework is WP or Drupal.
-    $framework = false === stripos( $framework, 'wordpress' ) ? 'drupal' : 'wordpress';
-    $this->copyFrameworkFiles( $framework, $site_name, $base_dir, $clone_dir );
+    $this->copyFrameworkFiles( $this->getFramework( $site_name ), $site_name, $base_dir, $clone_dir );
     $this->processGitIgnore($clone_dir);
 
     exec('direnv allow');
@@ -83,8 +73,21 @@ class CopyTemplatesCommand extends TerminusCommand {
    *              $clone_dir The directory the site was cloned into.
    */
   private function copyFrameworkFiles( string $framework, ...$args ) {
+    // If the framework isn't in the allowed_frameworks list, bail.
+    if ( ! in_array( $framework, $this->allowedFrameworks ) ) {
+      // If framework was empty, we get a message, otherwise we'll just have the framework. Check for the empty message and otherwise display an unsupported message.
+      if ( false === stripos( 'Could not determine site framework', $framework ) ) {
+        throw new \Exception( 'The framework for this site is not currently supported by Demigod Tools.' );
+      }
+      throw new \Exception( $framework );
+    }
+
+    // Determine if the framework is WP or Drupal.
+    $normalized_framework =  false === stripos( $framework, 'wordpress' ) ? 'drupal' : 'wordpress';
+
     [ $site_name, $base_dir, $clone_dir ] = $args;
-    $iterator = new \DirectoryIterator("$base_dir/templates/$framework");
+    $iterator = new \DirectoryIterator("$base_dir/templates/$normalized_framework");
+
     for ($iterator->rewind(); $iterator->valid(); $iterator->next()) {
         if (is_file($iterator->current()->getRealPath())) {
           switch ($iterator->current()->getFilename()) {
