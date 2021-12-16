@@ -93,7 +93,7 @@ class CopyTemplatesCommand extends TerminusCommand {
    */
   private function copyFrameworkFiles( string $framework, ...$args ) {
     // If the framework isn't in the allowed_frameworks list, bail.
-    if ( ! in_array( $framework, $this->allowedFrameworks ) ) {
+    if ( ! in_array( $framework, $this->allowedFrameworks() ) ) {
       // If framework was empty, we get a message, otherwise we'll just have the framework. Check for the empty message and otherwise display an unsupported message.
       if ( false === stripos( 'Could not determine site framework', $framework ) ) {
         throw new \Exception( 'The framework for this site is not currently supported by Demigod Tools.' );
