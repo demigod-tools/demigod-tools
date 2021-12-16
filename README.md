@@ -29,7 +29,9 @@ A simple plugin for Terminus-CLI version 3.0 or newer that adds a docker compose
 
 * [php](https://php.net)
 
-  Version 7.4+
+  Version 7.4+ (8.0 is recommended)
+
+  `brew install php@8.0`
 
 ## Installation
 
