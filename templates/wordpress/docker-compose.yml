@@ -41,7 +41,7 @@ services:
       - .envrc
     environment:
       - BACKUP_FILE_NAME=${PROJECT_NAME}.sql.gz
-      - DATABASE_NAME=wordpress
+      - DATABASE_NAME=drupal8
       - PROJECT_NAME=${PROJECT_NAME}
 
   mysql:
@@ -79,6 +79,78 @@ services:
       - demigod
     expose:
       - "6379"
+
+  solr:
+    container_name: ${PROJECT_NAME}-solr
+    image: ${SOLR_CONTAINER}
+    restart: always
+    depends_on:
+      - zk
+    networks:
+      - demigod
+    volumes:
+      - "./logs:/var/solr/logs"
+    environment:
+      ZK_HOST: "zk:2181"
+      VERBOSE: "true"
+      SOLR_JAVA_MEM: "-Xms2G -Xmx2G"
+      SOLR_HOST: "solr"
+      SOLR_PORT: "8983"
+      SOLR_PATH: "/solr"
+      PROJECT_NAME: ${PROJECT_NAME}
+    entrypoint:
+      - bash
+      - "-c"
+      - "exec solr -c -f -z zk:2181; exec solr create_collection -c ${PROJECT_NAME} -d /opt/search_api_solr/jump-start/solr8/cloud-config-set;"
+    healthcheck:
+      test: [ "CMD-SHELL", "/healthcheck.sh" ]
+      start_period: 15s
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    expose:
+      - "8983"
+    extra_hosts:
+      - "solr:127.0.0.1"
+    ports:
+      - "8983:8983"
+
+  zk:
+    container_name: ${PROJECT_NAME}-zk
+    image: zookeeper
+    networks:
+      - demigod
+    volumes:
+      - "./logs:/var/log/zk"
+    environment:
+      ALLOW_ANONYMOUS_LOGIN: "yes"
+      ZOO_CFG_EXTRA: "metricsProvider.className=org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider metricsProvider.httpPort=7000 metricsProvider.exportJvmInfo=true"
+      ZOO_4LW_COMMANDS_WHITELIST: mntr, conf, ruok
+      SERVER_JVMFLAGS: "-Xms2048m -Xmx2048m"
+      ZOO_LOG4J_PROP: "INFO,ROLLINGFILE"
+      ZOO_MY_ID: 1
+      ZOO_PORT: 2181
+      ZOO_LOG_DIR: "/var/log/zk"
+    expose:
+      - "2181"
+    ports:
+      - "2181:2181"
+      - "7000:7000"
+
+  zk-ui:
+    container_name: ${PROJECT_NAME}-zk-ui
+    image: elkozmon/zoonavigator
+    depends_on:
+      - zk
+    networks:
+      - demigod
+    expose:
+      - "9000"
+    ports:
+      - "9000:9000"
+    environment:
+      HTTP_PORT: "9000"
+      AUTO_CONNECT_CONNECTION_STRING: "zk:2181"
 
 volumes:
   web: { }
