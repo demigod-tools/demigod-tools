@@ -64,6 +64,25 @@ class CopyTemplatesCommand extends TerminusCommand {
   }
 
   /**
+   * Return the currently-supported frameworks.
+   *
+   * We only have two types of templates -- drupal or wordpress. We might get
+   * any of a bunch of different types of frameworks back that we need to map
+   * to those two template types. Start by identifying some "known" allowed
+   * frameworks. This list may expand to include more frameworks.
+   *
+   * @return array The array of allowed frameworks.
+   */
+  private function allowedFrameworks() : array {
+    return [
+      'wordpress',
+      'wordpress_network',
+      'drupal',
+      'drupal8'
+    ];
+  }
+
+  /**
    * Copy the template files based on the framework.
    *
    * @param string $framework The CMS framework identified by getFramework().
