@@ -196,8 +196,8 @@ class RoboFile extends \Robo\Tasks
       // if backup is older than a day, delete it and get a new one
       $changed = \DateTime::createFromFormat('U', $file->getCTime());
       $age = (new DateTime())->diff($changed);
-      $this->say('Backup age: ' . $age->format('%h') . ' hours');
-      if (intval($age->format('%h')) >= 24) {
+      $this->say('Backup age: ' . $age->format('%d:%h') );
+      if (intval($age->format('%f')) >= 86400) {
         unlink($file->getRealPath());
       }
     }
