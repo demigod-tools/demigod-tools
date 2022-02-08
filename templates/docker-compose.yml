@@ -85,7 +85,6 @@ services:
   solr:
     container_name: ${PROJECT_NAME}-solr
     image: ${SOLR_CONTAINER}
-    restart: on-failure
     depends_on:
       - zk
     networks:
@@ -137,7 +136,6 @@ services:
       - "2181"
     ports:
       - "2181:2181"
-      - "7000:7000"
 
   zk-ui:
     container_name: ${PROJECT_NAME}-zk-ui
