@@ -60,7 +60,7 @@ export DB_USER=drupal-database-user
 export DB_PASSWORD=password
 export DB_PORT=3306
 export DRUPAL_SYSTEM_LOGGING_ERROR_LEVEL=verbose
-export DRUPAL_HASH_SALT=**HASH_SALT**
+export DRUPAL_HASH_SALT=nbvQIOQGqCz2VDbZOtjWGb19U1CbmnEZoT66oaVRUMGYZr6Zv83o_9WdbNFvMx1kmfKd0a6tWA
 export DRUSH_OPTIONS_URI=localhost:8080
 
 

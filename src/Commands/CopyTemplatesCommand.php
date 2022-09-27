@@ -63,7 +63,7 @@ class CopyTemplatesCommand extends TerminusCommand {
             );
             break;
 
-          case '.envrc':
+          case '.envrc.dist':
             $contents = file_get_contents($iterator->current()->getRealPath());
             $contents = str_replace('**PROJECT_NAME**', $site_name, $contents);
             $contents = str_replace('**PROJECT_PATH**', $clone_dir, $contents);
@@ -74,6 +74,10 @@ class CopyTemplatesCommand extends TerminusCommand {
             );
             file_put_contents($clone_dir . '/' . $iterator->current()
                 ->getFilename(), $contents);
+            file_put_contents($clone_dir . '/' . ".envrc", $contents);
+            file_put_contents($clone_dir . '/' . ".env.docker", 
+                str_replace("export ", "", $contents)
+            );
             break;
 
           default:
