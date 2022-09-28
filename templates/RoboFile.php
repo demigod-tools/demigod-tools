@@ -1,5 +1,9 @@
 <?php
 
+define("ROBO_MYSQL_CONTAINER", getenv('PROJECT_NAME') . "-mysql");
+define("ROBO_PHPFPM_CONTAINER", getenv('PROJECT_NAME') . "-phpfpm");
+
+
 /**
  * Automate common housekeeping tasks.
  *
@@ -47,15 +51,14 @@ class RoboFile extends \Robo\Tasks
   {
     // TODO: wait for mysql service to be avail in container
     $project = getenv('PROJECT_NAME');
-    $container = "{$project}-php";
     $this->stopOnFail(true);
     $this->confirm(
       "Type 'y' to erase the database in the docker container and re-install drupal with the '{$profile}' profile"
     );
     $this->taskExec('rm -Rf web/sites/default/files web/sites/default/temp web/sites/default/private')
       ->run();
-    $this->waitForContainer("{$project}-mysql");
-    $this->taskDockerExec($container)
+    $this->waitForContainer(ROBO_MYSQL_CONTAINER);
+    $this->taskDockerExec(ROBO_PHPFPM_CONTAINER)
       ->interactive(true)
       ->exec("drush site:install --account-name=admin --site-name={$project} --locale=en --yes  {$profile}")
       ->run();
@@ -71,15 +74,9 @@ class RoboFile extends \Robo\Tasks
     $this->siteDisableModules(['search']);
     $this->siteEnableModules([
       'devel',
-      'search_api',
-      'search_api_solr',
-      'search_api_page',
-      'search_api_pantheon',
-      'search_api_solr_admin',
-      'search_api_solr_devel',
-      'search_api_pantheon_admin',
-      'search_api_spellcheck',
-      'search_api_autocomplete',
+      'devel_generate',
+      'devel',
+      'key',
     ]);
   }
 
@@ -93,7 +90,7 @@ class RoboFile extends \Robo\Tasks
   {
     $iterations = 0;
     $status = $this->getContainerHealth($container);
-    while ($status != 'healthy') {
+    while ($status != 'running') {
       sleep(10);
       if ($iterations >= $retries) {
         throw new \Exception(
@@ -113,8 +110,13 @@ class RoboFile extends \Robo\Tasks
   protected function getContainerHealth(string $container): ? string
   {
     $response = shell_exec(
-      "docker inspect {$container} | jq -r '.[].State.Health.Status'"
+      "docker inspect {$container} | jq -r '.[].State.Status'"
     );
+    if (empty($response)) {
+      throw new \Exception(
+        "Service {$container} was not available"
+      );
+    }
     return trim(str_replace(PHP_EOL, '', $response));
   }
 
@@ -147,7 +149,7 @@ class RoboFile extends \Robo\Tasks
    *
    * @return \Robo\Result
    */
-  public function dockerDrush(string $drushCommand = 'site:status', string $container = 'php')
+  public function dockerDrush(string $drushCommand = 'site:status', string $container = 'phpfpm')
   {
     return $this->taskDockerExec(getenv('PROJECT_NAME') . '-' . $container)
       ->interactive(true)
@@ -312,7 +314,18 @@ class RoboFile extends \Robo\Tasks
       ]
     );
     return $this->_exec($command);
+  }
 
+  /**
+   * @aliases gc
+   * Get a list of containers for the project.
+   *
+   * @return void
+   */
+  public function getContainers() {
+    $containers = yaml_parse_file("./docker-compose.yml");
+    \Kint::dump($containers);
+    exit();
   }
 
 }

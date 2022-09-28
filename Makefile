@@ -1,7 +1,7 @@
 APP              := demigod-tool
 REPO_NAME        ?= demigod-tools/$(APP)
 VERSION          ?= $(shell cat ./.version)
-
+VERSION_SAFE     ?= $(shell sed -e 's/\.//g' ".version")
 
 deps:  ## TODO
 	## TODO

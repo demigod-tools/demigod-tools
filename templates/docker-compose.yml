@@ -2,7 +2,7 @@
 version: "3.7"
 services:
   phpfpm:
-    container_name: phpfpm
+    container_name: ${PROJECT_NAME}-phpfpm
     env_file:
       - ./.env.docker
     image: ${PHP_CONTAINER}
@@ -27,7 +27,7 @@ services:
       - mysql
       - redis
   mysql:
-    container_name: mysql
+    container_name: ${PROJECT_NAME}-mysql
     image: mariadb
     environment:
       PROJECT_NAME: ${PROJECT_NAME}
@@ -38,9 +38,23 @@ services:
     expose:
       - "3306"
     volumes:
-      - ./k8s/envs/local/configs/mysql:/etc/mysql
+      - "dbdata:/var/lib/mysql"
     ports:
       - "33067:3306"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "--user=${MYSQL_USER}",
+          "--password=${MYSQL_PASSWORD}",
+          "--host=localhost",
+        ]
+      start_period: 60s
+      retries: 10
+      interval: 15s
+      timeout: 5s
 
   redis:
     # Generic redis instance
