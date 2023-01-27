@@ -1,8 +1,8 @@
 # .env.dist
 
-#Ideally these values will be the pantheon site name and local path
-export PROJECT_PATH=**PROJECT_PATH**
-export PROJECT_NAME=**PROJECT_NAME**
+export SITENAME=$(basename `pwd`)
+export PROJECT_PATH=$SITENAME
+export PROJECT_NAME=$SITENAME
 
 # If you want to host your own versions of these containers,
 # feel free to change these values.
